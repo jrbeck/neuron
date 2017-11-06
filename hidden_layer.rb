@@ -1,6 +1,8 @@
 load 'neuron.rb'
 
 class HiddenLayer
+  attr_accessor :neurons
+
   def initialize(size, input_size)
     @neurons = Array.new(size) { Neuron.new(input_size) }
   end
@@ -16,30 +18,28 @@ class HiddenLayer
     @neurons.map(&:value)
   end
 
-  def compute_error(expected_vector)
-    # pp '==========='
-    # pp expected_vector
-    # pp values
-    error_vector = Array.new(@neurons.size, 0)
-    expected_vector.each do |expected_value|
-      @neurons.each_with_index do |neuron, index|
-        error_vector[index] += expected_value - neuron.value
-      end
+  def compute_output_layer_error_vector(expected_vector)
+    error_vector = []
+    @neurons.each_with_index do |neuron, index|
+      error = expected_vector[index] - neuron.value
+
+      error_vector << error
+      neuron.delta = error * neuron.activation_function_derivative(neuron.value)
     end
     error_vector
   end
 
-  def train(error_vector)
-    # pp '-----'
-    # pp values
-    # pp error_vector
-    # adjustment = dot(training_set_inputs.T, error * self.__sigmoid_derivative(output))
-
+  def compute_error_vector(next_layer)
+    error_vector = []
     @neurons.each_with_index do |neuron, index|
-      adjustment = error_vector[index] * @input_vector[index] * neuron.activation_function_derivative(neuron.value)
-      neuron.weights.each_with_index do |weight, weight_index|
-        neuron.weights[weight_index] += adjustment
+      error = 0.0
+      next_layer.neurons.each do |next_layer_neuron|
+        error += next_layer_neuron.weights[index] * next_layer_neuron.delta
       end
+
+      error_vector << error
+      neuron.delta = error * neuron.activation_function_derivative(neuron.value)
     end
+    error_vector
   end
 end

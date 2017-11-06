@@ -16,11 +16,28 @@ class DataGenerator
   end
 
   private
+    # BINARY -> DECIMAL
+    # def generate_input
+    #   input = Array.new(3) { rand(0..1).to_f }
+    # end
+    #
+    # def generate_output(input)
+    #   output = Array.new(8, 0.0)
+    #   output[input[0] + (2 * input[1]) + (4 * input[2])] = 1.0
+    #   output
+    # end
+
+    # SUM IS POSITIVE?
     def generate_input
-      Array.new(5) { rand(0..9) }
+      input = Array.new(3) { rand - 0.5 }
     end
 
     def generate_output(input)
-      [input.reduce(:+)]
+      sum = input.reduce(:+)
+      if sum <= 0
+        [0.0]
+      else
+        [1.0]
+      end
     end
 end

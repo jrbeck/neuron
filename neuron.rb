@@ -1,6 +1,7 @@
 class Neuron
   attr_accessor :value, :weights
   attr_accessor :sigma, :zed
+  attr_accessor :delta
 
   def initialize(num_inputs)
     initialize_weights(num_inputs)
@@ -50,5 +51,4 @@ class Neuron
       # sigmoid
       1.0 / (1.0 + Math.exp(-value))
     end
-
 end

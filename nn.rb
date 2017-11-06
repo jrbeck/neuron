@@ -10,15 +10,15 @@ class NN
 
   def run
     puts 'Training ...'
-    @neural_net.train(200)
-    puts 'Result:'
-    @neural_net.inspect
+    @neural_net.train(100)
+    # puts 'Result:'
+    # @neural_net.inspect
 
     puts 'Trying it out!'
     10.times do
       test_data = DataGenerator.new(1).generate
       pp test_data
-      pp @neural_net.run(test_data[0][:input])
+      pp @neural_net.run(test_data[0][:input]).map { |output| output.round(1) }
     end
   end
 end
