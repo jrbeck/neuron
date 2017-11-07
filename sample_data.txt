@@ -1,50 +1,14 @@
-class DataGenerator
-  def initialize(sample_size)
-    @sample_size = sample_size
-  end
-
-  def generate
-    samples = []
-    @sample_size.times do
-      input = generate_input
-      samples << {
-        input: input,
-        output: generate_output(input)
-      }
-    end
-    samples
-
-    monkey_samples
-  end
-
-  private
-    # BINARY -> DECIMAL
-    # def generate_input
-    #   input = Array.new(3) { rand(0..1).to_f }
-    # end
-    #
-    # def generate_output(input)
-    #   output = Array.new(8, 0.0)
-    #   output[input[0] + (2 * input[1]) + (4 * input[2])] = 1.0
-    #   output
-    # end
-
-    # SUM IS POSITIVE?
-    def generate_input
-      input = Array.new(3) { rand - 0.5 }
-    end
-
-    def generate_output(input)
-      sum = input.reduce(:+)
-      if sum <= 0
-        [0.0]
-      else
-        [1.0]
-      end
-    end
-
-    def monkey_samples
-      [
+[
+{ input: [250.27832, 108.89130], output: [0.40104, 109.48410] },
+{ input: [292.86865, 264.38599], output: [0.98461, 92.00546] },
+{ input: [271.95068, 161.99951], output: [0.88489, 76.41312] },
+{ input: [321.22803, 296.26160], output: [1.35310, 94.10538] },
+{ input: [339.44336, 287.35809], output: [1.03806, 83.97644] },
+{ input: [291.00098, 238.99536], output: [1.38417, 94.23035] },
+{ input: [336.56494, 229.32129], output: [1.32174, 88.70392] },
+{ input: [478.87451, 230.32837], output: [1.15864, 88.06946] },
+{ input: [343.01758, 235.56976], output: [0.74882, 102.47940] },
+{ input: [299.88525, 142.02576], output: [0.55935, 106.14624] },
 { input: [257.14844, 298.16132], output: [1.28555, 85.29877] },
 { input: [262.94922, 120.52612], output: [0.66277, 89.97604] },
 { input: [445.74707, 158.81805], output: [1.35458, 105.40924] },
@@ -1044,7 +1008,5 @@ class DataGenerator
 { input: [305.59814, 125.68359], output: [0.56813, 103.81882] },
 { input: [253.82324, 220.97473], output: [0.81110, 106.75507] },
 { input: [347.93945, 252.16370], output: [0.75510, 109.51935] },
-{ input: [347.07520, 256.81000], output: [1.38877, 105.00549] },
-      ]
-    end
-end
+{ input: [347.07520, 256.81000], output: [1.38877, 105.00549] }
+]

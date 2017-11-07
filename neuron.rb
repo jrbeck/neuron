@@ -1,7 +1,5 @@
 class Neuron
-  attr_accessor :value, :weights
-  attr_accessor :sigma, :zed
-  attr_accessor :delta
+  attr_accessor :value, :weights, :zed, :delta
 
   def initialize(num_inputs)
     initialize_weights(num_inputs)
@@ -11,16 +9,7 @@ class Neuron
   def compute(input_vector)
     fail 'Invalid input_vector size' if input_vector.length != @weights.length
     @zed = dot(input_vector, @weights)
-    @sigma = @value = activation_function(@zed)
-  end
-
-  def cost(output_vector)
-
-  end
-
-  def back_compute(output_vector)
-    fail 'Invalid output_vector size' if output_vector.length != @weights.length
-    @value = activation_function_derivative(dot(output_vector))
+    @value = activation_function(@zed)
   end
 
   def activation_function_derivative(value)
