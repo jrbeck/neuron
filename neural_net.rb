@@ -2,40 +2,64 @@ require 'pp'
 load 'hidden_layer.rb'
 
 class NeuralNet
-
-  def initialize(training_data, options = {})
-    @num_hidden_layers = options[:num_hidden_layers] || 2
-    @hidden_layer_size = options[:hidden_layer_size] || 3
-    @learning_rate = options[:learning_rate] || 0.4
-
-    @training_data = training_data
-    @hidden_layers = generate_hidden_layers
-    @output_layer = HiddenLayer.new(@training_data.first[:output].length, @hidden_layer_size)
+  def initialize(options: nil, saved_state: nil)
+    if saved_state
+      load_state(saved_state)
+    else
+      configure(options)
+    end
   end
 
-  def train(epochs)
-    last_result = nil
+  def configure(options)
+    @input_size = options[:input_size]
+    @output_size = options[:output_size]
+    @hidden_layer_sizes = options[:hidden_layer_sizes] || [1]
+    @learning_rate = options[:learning_rate] || 0.5
+    @hidden_layers = generate_hidden_layers
+    @output_layer = HiddenLayer.new(size: @output_size, input_size: @hidden_layer_sizes.last)
+  end
+
+  def load_state(saved_state)
+    @input_size = saved_state[:input_size]
+    @output_size = saved_state[:output_size]
+    @hidden_layer_sizes = saved_state[:hidden_layer_sizes]
+    @learning_rate = saved_state[:learning_rate]
+    @hidden_layers = saved_state[:hidden_layers].map { |hidden_layer_state| HiddenLayer.new(saved_state: hidden_layer_state) }
+    @output_layer = HiddenLayer.new(saved_state: saved_state[:output_layer])
+  end
+
+  def state
+    {
+      input_size: @input_size,
+      output_size: @output_size,
+      hidden_layer_sizes: @hidden_layer_sizes.clone,
+      learning_rate: @learning_rate,
+      hidden_layers: @hidden_layers.map(&:state),
+      output_layer: @output_layer.state
+    }
+  end
+
+  def train(training_data, epochs, testing_data = nil)
     epochs.times do |epoch|
-      pp "EPOCH #{epoch} ------------------------------------"
-      error_sum = []
-      @training_data.each do |training_datum|
-        last_result = forward_propogate(training_datum[:input])
-        error_sum << @output_layer.compute_output_layer_error_vector(training_datum[:output]).reduce(:+)
+      training_data.each do |training_datum|
+        forward_propogate(training_datum[:input])
         backward_propagate_error(training_datum[:output])
         update_weights(training_datum[:input])
       end
-      pp error_sum.reduce(:+)
+
+      if testing_data
+        errors = []
+        testing_data.each do |testing_datum|
+          forward_propogate(testing_datum[:input])
+          errors << compute_error(testing_datum[:output]).map { |error| error * error }.reduce(:+)
+        end
+        pp "#{epoch} - #{(errors.reduce(:+) / errors.length).round(4)}"
+      end
     end
   end
 
   def compute_error(expected_vector)
     @output_layer.compute_simple_error(expected_vector)
-  end
-
-  def inspect
-    pp @input_vector
-    pp @hidden_layers
-    pp @output_layer
   end
 
   def forward_propogate(input_vector)
@@ -48,10 +72,11 @@ class NeuralNet
 
   private
     def generate_hidden_layers
+      last_hidden_layer_size = @input_size
       [].tap do |hidden_layers|
-        hidden_layers << HiddenLayer.new(@hidden_layer_size, @training_data.first[:input].length)
-        (@num_hidden_layers - 1).times do
-          hidden_layers << HiddenLayer.new(@hidden_layer_size, @hidden_layer_size)
+        @hidden_layer_sizes.each do |hidden_layer_size|
+          hidden_layers << HiddenLayer.new(size: hidden_layer_size, input_size: last_hidden_layer_size)
+          last_hidden_layer_size = hidden_layer_size
         end
       end
     end

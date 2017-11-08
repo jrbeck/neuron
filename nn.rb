@@ -11,28 +11,41 @@ class NN
   end
 
   def run
-    nomalized_training_data = normalize_samples(@training_data, @data_extremes)
-    @neural_net = NeuralNet.new(nomalized_training_data)
-
-    puts 'Training ...'
-    @neural_net.train(100)
-
-    puts 'Trying it out!'
+    normalized_training_data = normalize_samples(@training_data, @data_extremes)
     normalized_testing_data = normalize_samples(@testing_data, @data_extremes)
 
     errors = []
-    normalized_testing_data.each do |normalized_test_datum|
-      forward_propogation_output = @neural_net.forward_propogate(normalized_test_datum[:input]).map { |output| output.round(5) }
-      errors << @neural_net.compute_error(normalized_test_datum[:output]).reduce(:+)
 
-      pp denormalize_output(normalized_test_datum[:output], @data_extremes)
-      pp denormalize_output(forward_propogation_output, @data_extremes)
-      pp '-----'
+    neural_net_options = {
+      input_size: @training_data.first[:input].length,
+      output_size: @training_data.first[:output].length,
+      hidden_layer_sizes: [4],
+      learning_rate: 0.5
+    }
+    errors << configured_run(normalized_training_data, 1000, normalized_testing_data, neural_net_options)
+
+    # puts 'Errors ...'
+    # errors.each do |error|
+    #   pp error.reduce(:+) / error.length
+    #   pp '-----'
+    # end
+  end
+
+  def configured_run(training_data, training_epochs, testing_data, neural_net_options)
+    neural_net = NeuralNet.new(options: neural_net_options)
+    initial_neural_net_state = neural_net.state
+
+    puts "Training ... (#{training_epochs} epochs)"
+    neural_net.train(training_data, training_epochs, testing_data)
+
+    puts 'Testing ...'
+    errors = []
+    testing_data.each do |testing_datum|
+      neural_net.forward_propogate(testing_datum[:input])
+      errors << neural_net.compute_error(testing_datum[:output]).map { |error| error * error }.reduce(:+)
     end
 
-    pp 'Errors:'
-    pp errors
-    pp errors.reduce(:+)
+    errors
   end
 
   private

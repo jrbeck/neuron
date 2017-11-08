@@ -3,8 +3,23 @@ load 'neuron.rb'
 class HiddenLayer
   attr_accessor :neurons
 
-  def initialize(size, input_size)
-    @neurons = Array.new(size) { Neuron.new(input_size) }
+  def initialize(size: nil, input_size: nil, saved_state: nil)
+    if saved_state
+      load_state(saved_state)
+    else
+      @neurons = Array.new(size) { Neuron.new(num_inputs: input_size) }
+    end
+  end
+
+  def state
+    { neurons: @neurons.map(&:state) }
+  end
+
+  def load_state(saved_state)
+    @neurons = []
+    saved_state[:neurons].each do |neuron_state|
+      @neurons << Neuron.new(saved_state: neuron_state)
+    end
   end
 
   def compute(input_vector)
