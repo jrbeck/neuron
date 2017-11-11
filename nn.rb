@@ -4,25 +4,35 @@ load 'sample_data.rb'
 load 'neural_net.rb'
 
 class NN
+  TRAINING_EPOCHS = 1000
+
   def initialize
-    @training_data = SampleData.training_data
-    @testing_data = SampleData.testing_data
-    @data_extremes = data_extremes(@training_data + @testing_data)
+    # @training_data = SampleData.training_data
+    # @testing_data = SampleData.testing_data
+
+    data_generator = DataGenerator.new
+    @training_data = data_generator.training_data(1000)
+    @testing_data = data_generator.testing_data(10)
+
+    @output_extremes = output_extremes(@training_data + @testing_data)
   end
 
   def run
-    normalized_training_data = normalize_samples(@training_data, @data_extremes)
-    normalized_testing_data = normalize_samples(@testing_data, @data_extremes)
+    normalized_training_data = normalize_samples(@training_data, @output_extremes)
+    normalized_testing_data = normalize_samples(@testing_data, @output_extremes)
+
+    # normalized_training_data = @training_data
+    # normalized_testing_data = @testing_data
 
     errors = []
 
     neural_net_options = {
       input_size: @training_data.first[:input].length,
       output_size: @training_data.first[:output].length,
-      hidden_layer_sizes: [4],
+      hidden_layer_sizes: [2],
       learning_rate: 0.5
     }
-    errors << configured_run(normalized_training_data, 1000, normalized_testing_data, neural_net_options)
+    errors << configured_run(normalized_training_data, TRAINING_EPOCHS, normalized_testing_data, neural_net_options)
 
     # puts 'Errors ...'
     # errors.each do |error|
@@ -41,23 +51,27 @@ class NN
     puts 'Testing ...'
     errors = []
     testing_data.each do |testing_datum|
-      neural_net.forward_propogate(testing_datum[:input])
+      forward_propagation_output = neural_net.forward_propagate(testing_datum[:input])
+
+      pp testing_datum[:input]
+      pp denormalize_output(testing_datum[:output], @output_extremes).map { |value| value.round(2) }
+      pp denormalize_output(forward_propagation_output, @output_extremes).map { |value| value.round(2) }
+      pp '------------------------'
       errors << neural_net.compute_error(testing_datum[:output]).map { |error| error * error }.reduce(:+)
     end
+
+    pp neural_net.state
 
     errors
   end
 
   private
-    def data_extremes(samples)
-      {}.tap do |extremes|
+    def output_extremes(samples)
+      { low: 10000000, high: -10000000 }.tap do |extremes|
         samples.each do |sample|
-          sample.keys.each do |key|
-            extremes[key] ||= Array.new(sample[key].length) { { low: 1000000, high: -1000000 } }
-            sample[key].each_with_index do |value, index|
-              extremes[key][index][:low] = value if extremes[key][index][:low] > value
-              extremes[key][index][:high] = value if extremes[key][index][:high] < value
-            end
+          sample[:output].each do |value|
+            extremes[:low] = value if extremes[:low] > value
+            extremes[:high] = value if extremes[:high] < value
           end
         end
       end
@@ -66,12 +80,12 @@ class NN
     def normalize_samples(samples, extremes)
       samples.map do |sample|
         {}.tap do |normalized_sample|
-          sample.keys.each do |key|
-            normalized_sample[key] = []
-            sample[key].each_with_index do |value, index|
-              range = extremes[key][index][:high] - extremes[key][index][:low]
-              normalized_sample[key] << (value - extremes[key][index][:low]) / range
-            end
+          normalized_sample[:input] = sample[:input]
+          normalized_sample[:output] = []
+
+          sample[:output].each do |value|
+            range = extremes[:high] - extremes[:low]
+            normalized_sample[:output] << (value - extremes[:low]) / range
           end
         end
       end
@@ -80,22 +94,17 @@ class NN
     def denormalize_samples(samples, extremes)
       samples.map do |sample|
         {}.tap do |denormalized_sample|
-          sample.keys.each do |key|
-            denormalized_sample[key] = []
-            sample[key].each_with_index do |value, index|
-              range = extremes[key][index][:high] - extremes[key][index][:low]
-              denormalized_sample[key] << (value * range) + extremes[key][index][:low]
-            end
-          end
+          denormalized_sample[:input] = sample[:input]
+          denormalized_sample[:output] = denormalize_output(sample[:output], extremes)
         end
       end
     end
 
     def denormalize_output(output, extremes)
       [].tap do |denormalized_output|
-        output.each_with_index do |value, index|
-          range = extremes[:output][index][:high] - extremes[:output][index][:low]
-          denormalized_output << (value * range) + extremes[:output][index][:low]
+        output.each do |value|
+          range = extremes[:high] - extremes[:low]
+          denormalized_output << (value * range) + extremes[:low]
         end
       end
     end
