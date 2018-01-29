@@ -80,7 +80,7 @@ class DataGenerator
     # end
 
     # ------------------------------------------------------------------------------------------
-    # SQUARE
+    # MULTIPLY
     def generate_input
       input = Array.new(2) { rand(2..100).to_f }
     end

@@ -2,6 +2,8 @@ require 'pp'
 load 'data_generator.rb'
 load 'sample_data.rb'
 load 'neural_net.rb'
+load 'monkey_trainer.rb'
+load 'monkey_data.rb'
 
 class NN
   TRAINING_EPOCHS = 1000
@@ -10,12 +12,25 @@ class NN
     # @training_data = SampleData.training_data
     # @testing_data = SampleData.testing_data
 
-    data_generator = DataGenerator.new
-    @training_data = data_generator.training_data(1000)
-    @testing_data = data_generator.testing_data(10)
+    # data_generator = DataGenerator.new
+    # @training_data = data_generator.training_data(1000)
+    # @testing_data = data_generator.testing_data(10)
+
+    @training_data = MonkeyData.training_data
+    @testing_data = MonkeyData.testing_data
 
     @output_extremes = output_extremes(@training_data + @testing_data)
   end
+
+
+  def monkey_test
+    monkey_trainer = MonkeyTrainer.new
+    monkey_trainer.connect
+    pp monkey_trainer.generate_training_data
+    monkey_trainer.disconnect
+  end
+
+
 
   def run
     normalized_training_data = normalize_samples(@training_data, @output_extremes)
@@ -29,7 +44,7 @@ class NN
     neural_net_options = {
       input_size: @training_data.first[:input].length,
       output_size: @training_data.first[:output].length,
-      hidden_layer_sizes: [2],
+      hidden_layer_sizes: [3],
       learning_rate: 0.5
     }
     errors << configured_run(normalized_training_data, TRAINING_EPOCHS, normalized_testing_data, neural_net_options)
@@ -112,3 +127,4 @@ end
 
 nn = NN.new
 nn.run
+# nn.monkey_test
