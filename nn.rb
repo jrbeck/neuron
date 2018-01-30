@@ -12,12 +12,12 @@ class NN
     # @training_data = SampleData.training_data
     # @testing_data = SampleData.testing_data
 
-    # data_generator = DataGenerator.new
-    # @training_data = data_generator.training_data(1000)
-    # @testing_data = data_generator.testing_data(10)
+    data_generator = DataGenerator.new
+    @training_data = data_generator.training_data(1000)
+    @testing_data = data_generator.testing_data(10)
 
-    @training_data = MonkeyData.training_data
-    @testing_data = MonkeyData.testing_data
+    # @training_data = MonkeyData.training_data
+    # @testing_data = MonkeyData.testing_data
 
     @output_extremes = output_extremes(@training_data + @testing_data)
   end
@@ -44,8 +44,8 @@ class NN
     neural_net_options = {
       input_size: @training_data.first[:input].length,
       output_size: @training_data.first[:output].length,
-      hidden_layer_sizes: [3],
-      learning_rate: 0.5
+      hidden_layer_sizes: [3, 3],
+      learning_rate: 0.1
     }
     errors << configured_run(normalized_training_data, TRAINING_EPOCHS, normalized_testing_data, neural_net_options)
 
@@ -67,12 +67,14 @@ class NN
     errors = []
     testing_data.each do |testing_datum|
       forward_propagation_output = neural_net.forward_propagate(testing_datum[:input])
+      error = neural_net.compute_error(testing_datum[:output]).map { |error| error * error }.reduce(:+)
+      errors << error
 
       pp testing_datum[:input]
-      pp denormalize_output(testing_datum[:output], @output_extremes).map { |value| value.round(2) }
-      pp denormalize_output(forward_propagation_output, @output_extremes).map { |value| value.round(2) }
+      pp "test: #{denormalize_output(testing_datum[:output], @output_extremes).map { |value| value.round(2) }}"
+      pp "nn: #{denormalize_output(forward_propagation_output, @output_extremes).map { |value| value.round(2) }}"
+      pp "error: #{error}"
       pp '------------------------'
-      errors << neural_net.compute_error(testing_datum[:output]).map { |error| error * error }.reduce(:+)
     end
 
     pp neural_net.state
@@ -126,5 +128,10 @@ class NN
 end
 
 nn = NN.new
-nn.run
-# nn.monkey_test
+
+case ARGV[0]
+when 'train'
+  nn.monkey_test
+else
+  nn.run
+end

@@ -1,10 +1,9 @@
 require 'pp'
 require 'socket'
 
-
 class MonkeyTrainer
   PACKET_LENGTH = 2048
-  SERVER_IP_ADDRESS = '127.0.0.1'
+  SERVER_IP_ADDRESS = '127.0.0.1'.freeze
   SERVER_PORT = 6789
 
   def connect
@@ -18,10 +17,8 @@ class MonkeyTrainer
     udp_send('DISCONNECT')
   end
 
-  def generate_training_data(hits_target = 1000)
+  def generate_training_data(hits_target = 100)
     results = []
-    # done = false
-    # 5000.times do |i|
     hits = 0
     while hits < hits_target
       target_info = get_target_info
@@ -31,10 +28,12 @@ class MonkeyTrainer
       if shot_response == 'HIT'
         hits += 1
         p "#{hits} / #{hits_target} --------------------"
-        results << { input: target_info, output: [angle, force] }
+        results << { input: target_info, output: [angle] }
+        # results << { input: target_info, output: [angle, force] }
       end
       send_reset
     end
+    save_results results
     results
   end
 
@@ -97,4 +96,33 @@ class MonkeyTrainer
       retry
     end
 
+    def save_results(results)
+      return unless results.size >= 10
+      test_data_size = results.size / 10
+      training_data_size = results.size - test_data_size
+
+      File.open('monkey_data.rb', 'w') do |file|
+        file.write "class MonkeyData\n"
+
+        file.write "  def self.testing_data\n"
+        file.write "    [\n"
+        test_data_size.times do |i|
+          file.write "      #{results[i]},\n"
+        end
+        file.write "    ]\n"
+        file.write "  end\n"
+
+        file.write "\n"
+
+        file.write "  def self.training_data\n"
+        file.write "    [\n"
+        training_data_size.times do |i|
+          file.write "      #{results[i + test_data_size]},\n"
+        end
+        file.write "    ]\n"
+        file.write "  end\n"
+
+        file.write "end\n"
+      end
+    end
 end
