@@ -15,6 +15,10 @@ class Neuron
     { weights: @weights.clone }
   end
 
+  def randomize
+    @weights = Array.new(@weights.length) { rand }
+  end
+
   def compute(input_vector)
     fail 'Invalid input_vector size' if input_vector.length != @weights.length
     @zed = dot(input_vector, @weights)

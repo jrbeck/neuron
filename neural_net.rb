@@ -1,7 +1,9 @@
 require 'pp'
+
 load 'hidden_layer.rb'
 
 class NeuralNet
+  DEFAULT_HIDDEN_LAYER_SIZES = [1].freeze
   DEFAULT_LEARNING_RATE = 0.123
 
   def initialize(options: nil, saved_state: nil)
@@ -15,7 +17,7 @@ class NeuralNet
   def configure(options)
     @input_size = options[:input_size]
     @output_size = options[:output_size]
-    @hidden_layer_sizes = options[:hidden_layer_sizes] || [1]
+    @hidden_layer_sizes = options[:hidden_layer_sizes] || DEFAULT_HIDDEN_LAYER_SIZES
     @learning_rate = options[:learning_rate] || DEFAULT_LEARNING_RATE
     @hidden_layers = generate_hidden_layers
     @output_layer = HiddenLayer.new(size: @output_size, input_size: @hidden_layer_sizes.last)
@@ -41,6 +43,10 @@ class NeuralNet
     }
   end
 
+  def randomize
+    @hidden_layers.each(&:randomize)
+  end
+
   def train(training_data, epochs, testing_data = nil)
     epochs.times do |epoch|
       training_data.each do |training_datum|
@@ -55,7 +61,7 @@ class NeuralNet
           forward_propagate(testing_datum[:input])
           errors << compute_error(testing_datum[:output]).map { |error| error * error }.reduce(:+)
         end
-        pp "#{epoch} - #{(errors.reduce(:+) / errors.length).round(4)}"
+        pp "#{epoch} - #{(errors.reduce(:+) / errors.length).round(6)}"
       end
     end
   end
@@ -71,6 +77,14 @@ class NeuralNet
     end
     @output_layer.compute(last_vector)
   end
+
+  # def forward_propagate2(input_vector)
+  #   last_vector = input_vector
+  #   @hidden_layers.each do |hidden_layer|
+  #     last_vector = hidden_layer.compute2(last_vector)
+  #   end
+  #   @output_layer.compute2(last_vector)
+  # end
 
   private
     def generate_hidden_layers

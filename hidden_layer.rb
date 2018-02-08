@@ -22,11 +22,27 @@ class HiddenLayer
     end
   end
 
+  def randomize
+    @neurons.each(&:randomize)
+  end
+
   def compute(input_vector)
     @input_vector = input_vector
     @neurons.map do |neuron|
       neuron.compute(input_vector)
     end
+  end
+
+  def compute2(input_vector)
+    puts '---+++----'
+    # pp input_vector
+
+    @input_vector = input_vector
+    output = @neurons.map do |neuron|
+      neuron.compute(input_vector)
+    end
+    pp output
+    output
   end
 
   def values

@@ -22,25 +22,25 @@ class DataGenerator
   private
     # ------------------------------------------------------------------------------------------
     # BINARY -> DECIMAL (discrete output)
-    def generate_input
-      input = Array.new(3) { rand(0..1).to_f }
-    end
-
-    def generate_output(input)
-      output = Array.new(8, 0.0)
-      output[input[0] + (2 * input[1]) + (4 * input[2])] = 1.0
-      output
-    end
-
-    # ------------------------------------------------------------------------------------------
-    # BINARY -> DECIMAL (continuous output)
     # def generate_input
     #   input = Array.new(3) { rand(0..1).to_f }
     # end
     #
     # def generate_output(input)
-    #   [(input[0] + (2 * input[1]) + (4 * input[2])).to_f]
+    #   output = Array.new(8, 0.0)
+    #   output[input[0] + (2 * input[1]) + (4 * input[2])] = 1.0
+    #   output
     # end
+
+    # ------------------------------------------------------------------------------------------
+    # BINARY -> DECIMAL (continuous output)
+    def generate_input
+      input = Array.new(3) { rand(0..1).to_f }
+    end
+
+    def generate_output(input)
+      [(input[0] + (2 * input[1]) + (4 * input[2])).to_f]
+    end
 
     # ------------------------------------------------------------------------------------------
     # SUM IS POSITIVE?
@@ -62,7 +62,7 @@ class DataGenerator
     # def generate_input
     #   input = Array.new(2) { rand - 0.5 }
     # end
-
+    #
     # def generate_output(input)
     #   if input[0] >= 0
     #     if input[1] >= 0
@@ -87,5 +87,18 @@ class DataGenerator
     #
     # def generate_output(input)
     #   output = [input.reduce(:*)]
+    # end
+
+    # ------------------------------------------------------------------------------------------
+    # ARCTANGENT
+    # def generate_input
+    #   input = Array.new(2) { rand(25..100).to_f }
+    #   # input = Array.new(2) { rand }
+    #   input << (input[1] / input[0])
+    #   input << Math.atan2(input[1], input[0])
+    # end
+    #
+    # def generate_output(input)
+    #   [Math.atan2(input[1], input[0])]
     # end
 end
