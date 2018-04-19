@@ -2,6 +2,11 @@ class Neuron
   attr_accessor :value, :weights, :zed, :delta
 
   def initialize(num_inputs: nil, saved_state: nil)
+    @activation_function = :sigmoid
+    # @activation_function = :softplus
+    # @activation_function = :relu
+    # @activation_function = :tanh
+
     if saved_state
       @weights = saved_state[:weights].clone
     else
@@ -22,12 +27,23 @@ class Neuron
   def compute(input_vector)
     fail 'Invalid input_vector size' if input_vector.length != @weights.length
     @zed = dot(input_vector, @weights)
-    @value = activation_function(@zed)
+    @value = compute_activation_function(@zed)
   end
 
-  def activation_function_derivative(value)
-    # sigmoid derivative
-    value * (1.0 - value)
+  def compute_activation_function_derivative(value)
+    case @activation_function
+    when :sigmoid
+      value * (1.0 - value)
+      # (1.0 / (1.0 + Math.exp(-value))) * (1.0 - (1.0 / (1.0 + Math.exp(-value))))
+    when :softplus
+      1.0 / (1.0 + Math.exp(-value))
+    when :relu
+      value <= 0 ? 0 : 1
+    when :tanh
+      1.0 - (Math.tanh(value) * Math.tanh(value))
+    else
+      fail 'Invalid activation function'
+    end
   end
 
   private
@@ -45,8 +61,18 @@ class Neuron
     #   end
     # end
 
-    def activation_function(value)
-      # sigmoid
-      1.0 / (1.0 + Math.exp(-value))
+    def compute_activation_function(value)
+      case @activation_function
+      when :sigmoid
+        1.0 / (1.0 + Math.exp(-value))
+      when :softplus
+        Math.log(1.0 + Math.exp(value))
+      when :relu
+        value <= 0 ? 0 : value
+      when :tanh
+        Math.tanh(value)
+      else
+        fail 'Invalid activation function'
+      end
     end
 end

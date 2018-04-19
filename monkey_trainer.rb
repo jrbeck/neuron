@@ -8,7 +8,7 @@ class MonkeyTrainer
     @monkey_client = MonkeyClient.new
   end
 
-  def generate_training_data(hits_target = 500)
+  def generate_training_data(hits_target = 100)
     @monkey_client.connect
     @monkey_client.enter_training(fast: true)
 

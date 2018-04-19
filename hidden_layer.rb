@@ -33,17 +33,17 @@ class HiddenLayer
     end
   end
 
-  def compute2(input_vector)
-    puts '---+++----'
-    # pp input_vector
-
-    @input_vector = input_vector
-    output = @neurons.map do |neuron|
-      neuron.compute(input_vector)
-    end
-    pp output
-    output
-  end
+  # def compute2(input_vector)
+  #   puts '---+++----'
+  #   # pp input_vector
+  #
+  #   @input_vector = input_vector
+  #   output = @neurons.map do |neuron|
+  #     neuron.compute(input_vector)
+  #   end
+  #   pp output
+  #   output
+  # end
 
   def values
     @neurons.map(&:value)
@@ -64,7 +64,7 @@ class HiddenLayer
         error = expected_vector[index] - neuron.value
 
         error_vector << error
-        neuron.delta = error * neuron.activation_function_derivative(neuron.value)
+        neuron.delta = error * neuron.compute_activation_function_derivative(neuron.value)
       end
     end
   end
@@ -78,7 +78,7 @@ class HiddenLayer
         end
 
         error_vector << error
-        neuron.delta = error * neuron.activation_function_derivative(neuron.value)
+        neuron.delta = error * neuron.compute_activation_function_derivative(neuron.value)
       end
     end
   end

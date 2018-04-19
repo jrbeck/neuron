@@ -7,8 +7,8 @@ load 'monkey_trainer.rb'
 load 'monkey_player.rb'
 
 class NN
-  TRAINING_EPOCHS = 200
-  HIDDEN_LAYER_SIZES = [3].freeze
+  TRAINING_EPOCHS = 500
+  HIDDEN_LAYER_SIZES = [3, 2].freeze
   LEARNING_RATE = 0.25
   NORMALIZE = true
 
@@ -105,7 +105,6 @@ normalizer_extremes = {:input=>
     :high=>1.5637717862865594,
     :range=>1.3945466547481087},
    {:low=>200.0, :high=>200.0, :range=>0.0}]}
-
 
     monkey_player = MonkeyPlayer.new(state, normalizer_extremes)
     monkey_player.play(10)

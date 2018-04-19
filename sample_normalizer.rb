@@ -36,7 +36,6 @@ class SampleNormalizer
         else
           normalized_values << (value - sample_extremes[key][index][:low]) / sample_extremes[key][index][:range]
         end
-
       end
     end
   end
