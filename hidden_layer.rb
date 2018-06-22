@@ -62,7 +62,6 @@ class HiddenLayer
     [].tap do |error_vector|
       @neurons.each_with_index do |neuron, index|
         error = expected_vector[index] - neuron.value
-
         error_vector << error
         neuron.delta = error * neuron.compute_activation_function_derivative(neuron.value)
       end

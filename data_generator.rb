@@ -21,6 +21,17 @@ class DataGenerator
 
   private
     # ------------------------------------------------------------------------------------------
+    # is greater than zero?
+    def generate_input
+      input = Array.new(1) { rand - 0.5 }
+    end
+
+    def generate_output(input)
+      return [1.0] if input[0] < 0.0
+      [0.0]
+    end
+
+    # ------------------------------------------------------------------------------------------
     # BINARY -> DECIMAL (discrete output)
     # def generate_input
     #   input = Array.new(3) { rand(0..1).to_f }
@@ -91,14 +102,14 @@ class DataGenerator
 
     # ------------------------------------------------------------------------------------------
     # ARCTANGENT
-    def generate_input
-      input = Array.new(2) { rand(25..100).to_f }
-      # input = Array.new(2) { rand }
-      # input << (input[1] / input[0])
-      # input << Math.atan2(input[1], input[0])
-    end
-
-    def generate_output(input)
-      [Math.atan2(input[1], input[0])]
-    end
+    # def generate_input
+    #   input = Array.new(2) { rand(25..100).to_f }
+    #   # input = Array.new(2) { rand }
+    #   # input << (input[1] / input[0])
+    #   # input << Math.atan2(input[1], input[0])
+    # end
+    #
+    # def generate_output(input)
+    #   [Math.atan2(input[1], input[0])]
+    # end
 end
