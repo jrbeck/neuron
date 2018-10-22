@@ -8,9 +8,9 @@ load 'monkey_player.rb'
 
 class NN
   TRAINING_EPOCHS = 200
-  HIDDEN_LAYER_SIZES = [3].freeze
+  HIDDEN_LAYER_SIZES = [8].freeze
   LEARNING_RATE = 0.25
-  NORMALIZE = true
+  NORMALIZE = false
 
   def initialize
   end
